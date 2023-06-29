@@ -14,7 +14,6 @@ import { firestore } from '@/libs/firebase'
 import { Product } from '@/types/product'
 import { User } from '@/types/user'
 import { useWallet } from '@solana/wallet-adapter-react'
-import { spawn } from 'child_process'
 import { doc, setDoc } from 'firebase/firestore'
 import { ArrowDown } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -22,7 +21,7 @@ import EditProduct from './edit-product'
 import EditProfile from './edit-profile'
 import Stats from './stats'
 
-export default function WithWallet() {
+export default function DashboardPage() {
   const { publicKey } = useWallet()
   const isNewProductModal = useNewProductModal((s) => s.isOpen)
   const isEditProfileModal = useEditProfile((s) => s.isOpen)
@@ -50,6 +49,8 @@ export default function WithWallet() {
           setUser({
             username: publicKey.toString(),
             wallet: publicKey.toString(),
+            customers: [],
+            total_revenue: 0,
           })
           setProducts(undefined)
         } catch (error) {
@@ -73,7 +74,7 @@ export default function WithWallet() {
             <CoverPicture seed={user.wallet} />
             <Profile username={user.username} wallet={user.wallet} />
 
-            <Stats />
+            <Stats customers={user.customers} totalRevenue={user.total_revenue} />
             <Products products={products} />
 
             <NewProduct />

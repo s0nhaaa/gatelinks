@@ -9,6 +9,7 @@ import { useWallet } from '@solana/wallet-adapter-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import DownloadButton from './download-button'
 
 interface ProductPageProps {
   product: Product
@@ -74,7 +75,7 @@ export default function ProductPage({ product, user }: ProductPageProps) {
           <div className='col-span-4 flex'>
             <div className='flex flex-col gap-2 w-full'>
               {isBought ? (
-                <button className='btn btn-primary'>Download</button>
+                <DownloadButton id={product.id} name={product.name} />
               ) : (
                 <>
                   {parseFloat(product.price) === 0.0 && <PriceInput />}

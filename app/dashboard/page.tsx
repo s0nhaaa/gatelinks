@@ -1,11 +1,11 @@
 import WalletAdapter from '@/components/wallet-adapter'
-import WithWallet from '@/components/with-wallet'
+import DashboardPage from '@/components/dashboard-page'
 
 export default function Home() {
   return (
     <main className='bg-base-200 flex items-center h-screen flex-col '>
       <WalletAdapter>
-        <WithWallet />
+        <DashboardPage />
       </WalletAdapter>
     </main>
   )
