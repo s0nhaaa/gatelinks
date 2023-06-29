@@ -9,7 +9,7 @@ export default function Stats() {
             <CircleDollarSign />
           </div>
           <div className='stat-title'>Total Revenue</div>
-          <div className='stat-value text-primary'>25.6K</div>
+          <div className='stat-value text-primary'>$25.6K</div>
           <div className='stat-desc'>
             <span className='text-success'>↗︎</span> 400 (22%)
           </div>

@@ -4,6 +4,7 @@ import useEditProduct from '@/hooks/useEditProduct'
 import { Product } from '@/types/product'
 import { Edit, PackageOpen, PackageX } from 'lucide-react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 interface ProductsProps {
@@ -13,6 +14,7 @@ interface ProductsProps {
 export default function Products(props: ProductsProps) {
   const [isOpen, setIsOpen, setCurrentProduct] = useEditProduct((s) => [s.isOpen, s.setIsOpen, s.setCurrentProduct])
   const [editable, setEditable] = useState(false)
+  const router = useRouter()
 
   const openEditProductModal = (product: Product) => {
     setIsOpen(true)
@@ -48,6 +50,9 @@ export default function Products(props: ProductsProps) {
                     height={300}
                   />
                 </figure>
+                <div
+                  onClick={() => router.push(`/p/${product.id}`)}
+                  className='absolute  w-full h-full bg-transparent'></div>
                 <button className='absolute inset-0 top-2 left-2 px-2 flex w-fit btn btn-neutral btn-sm btn-active no-animation text-base-content'>
                   ${product.price}
                 </button>
