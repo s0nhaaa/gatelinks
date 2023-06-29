@@ -1,5 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { verifyWebhookSignature } from '@candypay/checkout-sdk'
+import { arrayUnion, doc, increment, updateDoc } from 'firebase/firestore'
+import { firestore } from '@/libs/firebase'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
@@ -15,10 +17,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       const { product_id, owner } = payload.metadata
       const buyer = payload.customer
-      const amount = payload.payment_amount
+      const amount = payload.price
 
       try {
         console.log(product_id, owner, buyer, amount)
+        const updateProduct = updateDoc(doc(firestore, 'products', product_id), {
+          buyer: arrayUnion(buyer),
+        })
+        const updateUser = updateDoc(doc(firestore, 'users', owner), {
+          total_revenue: increment(Number(amount)),
+          customers: arrayUnion(buyer),
+        })
+
+        await Promise.all([updateProduct, updateUser])
       } catch (error) {
         console.log('write to bd failed', error)
       }
