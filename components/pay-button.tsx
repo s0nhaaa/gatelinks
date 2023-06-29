@@ -12,9 +12,21 @@ interface PayButtonProps {
   ownerUsername: string
   content: string
   isFree: boolean
+  productURL: string
+  productID: string
 }
 
-export default function PayButton({ isFree, name, price, image, ownerUsername, ownerWallet, content }: PayButtonProps) {
+export default function PayButton({
+  isFree,
+  name,
+  price,
+  image,
+  ownerUsername,
+  ownerWallet,
+  content,
+  productURL,
+  productID,
+}: PayButtonProps) {
   const router = useRouter()
   const namePrice = useNamePrice((s) => s.price)
   const [loading, setLoading] = useState(false)
@@ -31,6 +43,8 @@ export default function PayButton({ isFree, name, price, image, ownerUsername, o
           image,
           ownerWallet,
           ownerUsername,
+          productURL,
+          productID,
         }),
       })
       const data = await response.json()
