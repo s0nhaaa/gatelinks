@@ -22,14 +22,17 @@ export default function ProductPage({ product, user }: ProductPageProps) {
 
   useEffect(() => {
     const checkIsWalletBought = async () => {
-      if (!publicKey) return
+      if (!publicKey) {
+        setIsBought(false)
+        return
+      }
 
       const isBought = await checkIsBought(product.id, publicKey.toString())
       setIsBought(isBought)
     }
 
     checkIsWalletBought()
-  }, [publicKey])
+  }, [product.id, publicKey])
 
   return (
     <div className='w-[900px] bg-base-100 min-h-screen overflow-hidden'>
