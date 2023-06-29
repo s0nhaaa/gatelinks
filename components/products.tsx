@@ -29,17 +29,13 @@ export default function Products(props: ProductsProps) {
   return (
     <div className='w-full flex flex-col px-7 py-5'>
       <h2 className='font-semibold text-lg flex gap-2 select-none'>
-        <PackageOpen /> Products ({props.products?.length})
+        <PackageOpen /> Products ({props.products ? props.products.length : 0})
       </h2>
 
       <div className='w-full grid grid-cols-3 m-auto justify-center gap-5 mt-4 mb-20'>
         {props.products && props.products.length > 0 ? (
           props.products.map((product, index) => (
-            <div
-              key={index}
-              className='flex items-center justify-center'
-              // onClick={() => router.push(`/p/${product.id}`)}
-            >
+            <div key={index} className='flex items-center justify-center'>
               <div className='relative hover:ring ring-primary ring-offset-base-100 ring-offset-2 card w-full bg-base-200 shadow-xl select-none transition-all hover:cursor-pointer'>
                 <figure className='w-full h-[200px]'>
                   <Image

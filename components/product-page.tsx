@@ -10,6 +10,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import DownloadButton from './download-button'
+import { useSearchParams } from 'next/navigation'
+import { doc, onSnapshot } from 'firebase/firestore'
+import { firestore } from '@/libs/firebase'
 
 interface ProductPageProps {
   product: Product
@@ -19,6 +22,8 @@ interface ProductPageProps {
 export default function ProductPage({ product, user }: ProductPageProps) {
   const { publicKey } = useWallet()
   const [isBought, setIsBought] = useState(false)
+  const status = useSearchParams()?.get('status')
+  const [isAdded, setIsAdded] = useState(false)
 
   useEffect(() => {
     const checkIsWalletBought = async () => {
@@ -32,7 +37,19 @@ export default function ProductPage({ product, user }: ProductPageProps) {
     }
 
     checkIsWalletBought()
-  }, [product.id, publicKey])
+  }, [product.id, publicKey, isAdded])
+
+  useEffect(() => {
+    if (!publicKey) return
+
+    if (status === 'paid') {
+      const unsub = onSnapshot(doc(firestore, 'products', product.id), (doc) => {
+        if ((doc.data() as Product).buyer.includes(publicKey.toString())) setIsAdded(true)
+      })
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, publicKey])
 
   return (
     <div className='w-[900px] bg-base-100 min-h-screen overflow-hidden'>
@@ -77,9 +94,11 @@ export default function ProductPage({ product, user }: ProductPageProps) {
           </div>
           <div className='col-span-4 flex'>
             <div className='flex flex-col gap-2 w-full'>
-              {isBought ? (
-                <DownloadButton id={product.id} name={product.name} />
-              ) : (
+              {status === 'paid' && !isAdded && (
+                <span className='text-[#CCC9D6]'>The download link is generating ...</span>
+              )}
+              {isBought && <DownloadButton id={product.id} name={product.name} />}
+              {!(status === 'paid') && !isBought && (
                 <>
                   {parseFloat(product.price) === 0.0 && <PriceInput />}
                   <PayButton

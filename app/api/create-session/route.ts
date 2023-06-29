@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const response = await candypay.session.create({
-      success_url: productURL,
+      success_url: `${productURL}?status=paid`,
       cancel_url: productURL,
       tokens: ['dust', 'samo'],
       items: [

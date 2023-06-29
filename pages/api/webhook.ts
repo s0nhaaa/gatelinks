@@ -17,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       const { product_id, owner } = payload.metadata
       const buyer = payload.customer
-      const amount = payload.price
+      const amount = payload.payment_amount
 
       try {
         console.log(product_id, owner, buyer, amount)

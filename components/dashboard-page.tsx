@@ -44,6 +44,8 @@ export default function DashboardPage() {
           await setDoc(doc(firestore, 'users', publicKey.toString()), {
             wallet: publicKey.toString(),
             username: publicKey.toString(),
+            customers: [],
+            total_revenue: 0,
           })
 
           setUser({
