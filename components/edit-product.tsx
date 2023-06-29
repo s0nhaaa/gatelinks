@@ -1,15 +1,15 @@
 'use client'
 
-import { randomID } from '@/helpers/random-id'
 import { uploadFile } from '@/helpers/upload-file'
-import useNewProductModal from '@/hooks/useNewProductModal'
+import useEditProduct from '@/hooks/useEditProduct'
 import { firestore } from '@/libs/firebase'
-import { useWallet } from '@solana/wallet-adapter-react'
-import { doc, setDoc } from 'firebase/firestore'
-import { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react'
+import { deleteDoc, doc, updateDoc } from 'firebase/firestore'
+import { Eye, Globe2, Trash2 } from 'lucide-react'
+import Link from 'next/link'
+import { ChangeEvent, useEffect, useRef, useState } from 'react'
 
-export default function NewProduct() {
-  const [isOpen, setIsOpen] = useNewProductModal((s) => [s.isOpen, s.setIsOpen])
+export default function EditProduct() {
+  const [isOpen, currentProduct, setIsOpen] = useEditProduct((s) => [s.isOpen, s.currentProduct, s.setIsOpen])
 
   const nameRef = useRef<HTMLInputElement>(null)
   const contentRef = useRef<HTMLInputElement>(null)
@@ -20,12 +20,8 @@ export default function NewProduct() {
   const [thumbnail, setThumbnail] = useState<string>('')
   const [loading, setLoading] = useState(false)
 
-  const productID = useMemo(() => randomID(), [isOpen])
-
-  const { publicKey } = useWallet()
-
   const submit = async () => {
-    if (!nameRef.current || !descriptionRef.current || !priceRef.current || !publicKey) return
+    if (!nameRef.current || !descriptionRef.current || !priceRef.current || !currentProduct) return
 
     setLoading(true)
 
@@ -33,23 +29,22 @@ export default function NewProduct() {
     let thumbnailURL: string | undefined
 
     if (contentRef.current && contentRef.current.files && contentRef.current.files.length > 0)
-      contentURL = await uploadFile(contentRef.current.files[0], `/contents/${productID}`)
+      contentURL = await uploadFile(contentRef.current.files[0], `/contents/${currentProduct.id}`)
 
     if (thumbnailRef.current && thumbnailRef.current.files && thumbnailRef.current.files.length > 0)
-      thumbnailURL = await uploadFile(thumbnailRef.current.files[0], `/thumbnails/${productID}`)
+      thumbnailURL = await uploadFile(thumbnailRef.current.files[0], `/thumbnails/${currentProduct.id}`)
 
     try {
-      await setDoc(doc(firestore, 'products', productID), {
+      const data = {
         name: nameRef.current.value,
-        content: contentURL,
-        thumbnail: thumbnailURL,
         description: descriptionRef.current.value,
         price: priceRef.current.value,
-        owner: publicKey?.toString(),
-        buyer: [],
-        id: productID,
-      })
-      console.log('Document written with ID: ', productID)
+        ...(contentURL !== undefined && { content: contentURL }),
+        ...(thumbnailURL !== undefined && { thumbnail: thumbnailURL }),
+      }
+
+      await updateDoc(doc(firestore, 'products', currentProduct.id), data)
+      console.log('Document written with ID: ', currentProduct.id)
     } catch (error) {
       console.log('Write to firestore failed: ', error)
     } finally {
@@ -58,6 +53,43 @@ export default function NewProduct() {
     }
   }
 
+  const deleteProduct = async () => {
+    if (!currentProduct) return
+
+    setLoading(true)
+    try {
+      await deleteDoc(doc(firestore, 'products', currentProduct?.id))
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setLoading(false)
+      setIsOpen(false)
+    }
+  }
+
+  useEffect(() => {
+    if (!currentProduct) return
+
+    const name = nameRef.current
+    const description = descriptionRef.current
+    const price = priceRef.current
+    const content = contentRef.current
+    const thumbnail = thumbnailRef.current
+
+    if (name) name.value = currentProduct.name
+    if (description) description.value = currentProduct.description
+    if (price) price.value = currentProduct.price
+    if (content) {
+      content.files = null
+      content.value = ''
+    }
+    if (thumbnail) {
+      thumbnail.files = null
+      thumbnail.value = ''
+    }
+    setThumbnail(currentProduct.thumbnail)
+  }, [currentProduct])
+
   const handleThumbnailChange = async (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       setThumbnail(URL.createObjectURL(event.target.files[0]))
@@ -65,28 +97,6 @@ export default function NewProduct() {
       setThumbnail('')
     }
   }
-
-  useEffect(() => {
-    const name = nameRef.current
-    const content = contentRef.current
-    const thumbnail = thumbnailRef.current
-    const description = descriptionRef.current
-    const price = priceRef.current
-
-    return () => {
-      if (name) name.value = ''
-      if (content) {
-        content.files = null
-        content.value = ''
-      }
-      if (thumbnail) {
-        thumbnail.files = null
-        thumbnail.value = ''
-      }
-      if (description) description.value = ''
-      if (price) price.value = ''
-    }
-  }, [isOpen])
 
   return (
     <>
@@ -98,7 +108,7 @@ export default function NewProduct() {
             onClick={() => setIsOpen(false)}>
             ✕
           </button>
-          <h3 className='font-bold text-lg select-none'>What are you selling?</h3>
+          <h3 className='font-bold text-lg select-none'>Edit product: {currentProduct?.name}</h3>
 
           <div className='w-full h-[600px] overflow-auto no-scrollbar'>
             <div className='form-control w-full '>
@@ -112,10 +122,16 @@ export default function NewProduct() {
               <label className='label'>
                 <span className='label-text'>Content</span>
               </label>
+              <Link target={'_blank'} className='w-full' href={currentProduct ? currentProduct.content : '#'}>
+                <button className='btn w-full'>
+                  <Eye size={16} /> View
+                </button>
+              </Link>
+              <span className='text-sm text-[#CCC9D6] ml-2 mt-2'>Upload new?</span>
               <input
                 ref={contentRef}
                 type='file'
-                className='file-input file-input-bordered file-input-secondary w-full '
+                className='file-input file-input-bordered file-input-secondary w-full mt-1'
               />
             </div>
 
@@ -128,12 +144,14 @@ export default function NewProduct() {
                   <img className='w-full h-full object-cover' loading='lazy' src={thumbnail} alt='Shoes' />
                 </figure>
               )}
+              <span className='text-sm text-[#CCC9D6] ml-2'>Upload new?</span>
+
               <input
                 ref={thumbnailRef}
                 onChange={handleThumbnailChange}
                 type='file'
                 accept='.png,.jpg,.jpeg'
-                className='file-input file-input-bordered file-input-secondary w-full'
+                className='file-input file-input-bordered file-input-secondary w-full mt-1'
               />
             </div>
 
@@ -161,8 +179,18 @@ export default function NewProduct() {
           </div>
 
           <div className='modal-action'>
-            <button className='btn btn-ghost' disabled={loading} onClick={() => setIsOpen(false)}>
-              Cancel
+            <button className='btn hover:bg-error ' disabled={loading} onClick={deleteProduct}>
+              {loading ? (
+                <>
+                  <span className='loading loading-spinner'></span>
+                  Deleting
+                </>
+              ) : (
+                <>
+                  <Trash2 size={16} />
+                  Delete
+                </>
+              )}
             </button>
             <button className='btn btn-primary' onClick={submit} disabled={loading}>
               {loading ? (
@@ -171,7 +199,10 @@ export default function NewProduct() {
                   Hang on
                 </>
               ) : (
-                'Publish and Continue'
+                <>
+                  <Globe2 size={16} />
+                  Save and Publish
+                </>
               )}
             </button>
           </div>

@@ -7,6 +7,7 @@ import DynamicIsland from '@/components/dynamic-island'
 import NewProduct from '@/components/new-product'
 import Products from '@/components/products'
 import Profile from '@/components/profile'
+import useEditProduct from '@/hooks/useEditProduct'
 import useEditProfile from '@/hooks/useEditProfile'
 import useNewProductModal from '@/hooks/useNewProductModal'
 import { firestore } from '@/libs/firebase'
@@ -17,6 +18,7 @@ import { spawn } from 'child_process'
 import { doc, setDoc } from 'firebase/firestore'
 import { ArrowDown } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import EditProduct from './edit-product'
 import EditProfile from './edit-profile'
 import Stats from './stats'
 
@@ -24,6 +26,7 @@ export default function WithWallet() {
   const { publicKey } = useWallet()
   const isNewProductModal = useNewProductModal((s) => s.isOpen)
   const isEditProfileModal = useEditProfile((s) => s.isOpen)
+  const isEditProductModal = useEditProduct((s) => s.isOpen)
 
   const [products, setProducts] = useState<Product[]>()
   const [user, setUser] = useState<User>()
@@ -59,8 +62,8 @@ export default function WithWallet() {
       }
     }
 
-    !isNewProductModal && !isEditProfileModal && getData()
-  }, [publicKey, isNewProductModal, isEditProfileModal])
+    !isEditProductModal && !isNewProductModal && !isEditProfileModal && getData()
+  }, [publicKey, isNewProductModal, isEditProfileModal, isEditProductModal])
 
   return (
     <div className='w-[900px] bg-base-100 min-h-screen overflow-auto no-scrollbar'>
@@ -75,6 +78,7 @@ export default function WithWallet() {
 
             <NewProduct />
             <EditProfile />
+            <EditProduct />
           </>
         ) : (
           <span>Loading</span>
