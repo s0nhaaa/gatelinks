@@ -11,7 +11,7 @@ export default function Stats() {
           <div className='stat-title'>Total Revenue</div>
           <div className='stat-value text-primary'>25.6K</div>
           <div className='stat-desc'>
-            <span className='text-success'>↗︎</span> 400 (22%) than yesterday
+            <span className='text-success'>↗︎</span> 400 (22%)
           </div>
         </div>
 
@@ -22,7 +22,7 @@ export default function Stats() {
           <div className='stat-title'>Customers</div>
           <div className='stat-value text-secondary'>2.6M</div>
           <div className='stat-desc'>
-            <span className='text-error'>↘︎</span> 90 (14%) than yesterday
+            <span className='text-error'>↘︎</span> 90 (14%)
           </div>
         </div>
 
@@ -33,7 +33,7 @@ export default function Stats() {
           <div className='stat-title'>MMR</div>
           <div className='stat-value text-accent'>2.6M</div>
           <div className='stat-desc'>
-            <span className='text-success'>21%</span> more than last month
+            <span className='text-success'>21%</span> than last month
           </div>
         </div>
       </div>

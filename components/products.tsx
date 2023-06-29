@@ -1,6 +1,7 @@
 'use client'
 
 import { Product } from '@/types/product'
+import { PackageOpen, PackageX } from 'lucide-react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 
@@ -13,11 +14,12 @@ export default function Products(props: ProductsProps) {
 
   return (
     <div className='w-full flex flex-col px-7 py-5'>
-      <h2 className='font-semibold text-lg'>Products</h2>
+      <h2 className='font-semibold text-lg flex gap-2 select-none'>
+        <PackageOpen /> Products ({props.products?.length})
+      </h2>
 
       <div className='w-full grid grid-cols-3 m-auto justify-center gap-5 mt-4 mb-20'>
-        {props.products &&
-          props.products.length > 0 &&
+        {props.products && props.products.length > 0 ? (
           props.products.map((product, index) => (
             <div
               key={index}
@@ -42,7 +44,13 @@ export default function Products(props: ProductsProps) {
                 </div>
               </div>
             </div>
-          ))}
+          ))
+        ) : (
+          <div className='select-none text-[#CCC9D6] mt-10 col-span-3 w-full h-full flex items-center flex-col gap-4'>
+            <PackageX size={30} />
+            No products!
+          </div>
+        )}
       </div>
     </div>
   )

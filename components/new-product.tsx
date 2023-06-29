@@ -172,7 +172,7 @@ export default function NewProduct() {
           </div>
 
           <div className='modal-action'>
-            <button className='btn btn-ghost' disabled={loading}>
+            <button className='btn btn-ghost' disabled={loading} onClick={() => setIsOpen(false)}>
               Cancel
             </button>
             <button className='btn btn-primary' onClick={submit} disabled={loading}>

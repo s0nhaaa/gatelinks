@@ -2,25 +2,19 @@ import { formatWallet } from '@/helpers/format-wallet'
 import useNewProductModal from '@/hooks/useNewProductModal'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
-import { AnimatePresence, motion, Variants } from 'framer-motion'
+import { AnimatePresence } from 'framer-motion'
 import { LogOut, Plus, Wallet } from 'lucide-react'
-import { useEffect, useState } from 'react'
 
 interface DynamicIslandProps {}
 
 export default function DynamicIsland(props: DynamicIslandProps) {
   const { setVisible } = useWalletModal()
   const { publicKey, disconnect } = useWallet()
-  const [dynamicWidth, setDynamicWidth] = useState(160)
   const setIsOpen = useNewProductModal((s) => s.setIsOpen)
 
   const connectWallet = () => !publicKey && setVisible(true)
 
   const newProduct = () => setIsOpen(true)
-
-  useEffect(() => {
-    publicKey ? setDynamicWidth(220) : setDynamicWidth(165)
-  }, [publicKey])
 
   return (
     <div className='fixed bottom-5 left-1/2 -translate-x-1/2 p-2 rounded-full bg-secondary'>
